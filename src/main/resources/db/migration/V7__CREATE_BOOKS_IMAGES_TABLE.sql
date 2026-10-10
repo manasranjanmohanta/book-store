@@ -1,0 +1,13 @@
+CREATE TABLE book_images (
+     id BIGINT PRIMARY KEY AUTO_INCREMENT,
+     image_url VARCHAR(500) NOT NULL,
+     image_type VARCHAR(30),
+     is_primary BOOLEAN NOT NULL DEFAULT FALSE,
+     display_order INT,
+     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+     book_id BIGINT NOT NULL,
+     CONSTRAINT fk_image_book
+         FOREIGN KEY (book_id) REFERENCES books(id)
+);
