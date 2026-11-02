@@ -52,7 +52,7 @@ public class GlobalExceptionHandler {
                 errors
         );
         return ResponseEntity
-                .status(HttpStatus.CONFLICT)
+                .status(HttpStatus.BAD_REQUEST)
                 .body(validationResponse);
     }
 
