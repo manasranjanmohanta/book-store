@@ -5,6 +5,7 @@ import com.example.book_store.book.dto.request.CreateBookRequest;
 import com.example.book_store.book.dto.response.BookResponse;
 import com.example.book_store.book.entity.BookStatus;
 import com.example.book_store.book.service.BookService;
+import com.example.book_store.common.exception.ResourceAlreadyExistsException;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -122,4 +123,30 @@ public class BookControllerTest {
                 .createBook(Mockito.any(CreateBookRequest.class));
     }
 
+    @Test
+    void createBook_shouldReturn409_whenIsbnAlreadyExists() throws Exception {
+        // Arrange
+        Mockito.when(bookService.createBook(Mockito.any(CreateBookRequest.class)))
+                .thenThrow(
+                        new ResourceAlreadyExistsException("Book already exists with ISBN: 9780134685991")
+                );
+
+        // Act
+        mockMvc.perform(
+            post("/api/books")
+                    .header("X-API-Version", "1.0")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                                    {
+                                        "isbn": "9780134685991",
+                                        "title": "Effective Java",
+                                        "price": 850.00,
+                                        "originalPrice": 1000.00
+                                    }
+                                    """)
+        )
+        // Assert
+                .andDo(print())
+                .andExpect(status().isConflict());
+    }
 }
