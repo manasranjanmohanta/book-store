@@ -99,4 +99,27 @@ public class BookControllerTest {
         Mockito.verify(bookService, never())
                 .createBook(Mockito.any(CreateBookRequest.class));
     }
+
+    @Test
+    void createBook_shouldReturn400_whenIsbnIsMissing() throws Exception {
+        // Arrange & Act
+        mockMvc.perform(
+                post("/api/books")
+                        .header("X-API-Version", "1.0")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "title": "Effective Java",
+                                    "price": 850.00
+                                }
+                                """)
+        )
+        // Assert
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+
+        Mockito.verify(bookService, never())
+                .createBook(Mockito.any(CreateBookRequest.class));
+    }
+
 }
