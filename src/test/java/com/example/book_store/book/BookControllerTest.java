@@ -6,6 +6,7 @@ import com.example.book_store.book.dto.response.BookResponse;
 import com.example.book_store.book.entity.BookStatus;
 import com.example.book_store.book.service.BookService;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
@@ -15,6 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.math.BigDecimal;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -73,5 +75,28 @@ public class BookControllerTest {
 
         verify(bookService)
                 .createBook(any(CreateBookRequest.class));
+    }
+
+    @Test
+    void createBook_shouldReturn400_whenTitleIsBlank() throws Exception {
+        // Arrange & Act
+        mockMvc.perform(
+                post("/api/books")
+                        .header("X-API-Version", "1.0")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "isbn": "9780134685991",
+                                    "title": "",
+                                    "price": 850.00
+                                }
+                                """)
+        )
+        // Assert
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+
+        Mockito.verify(bookService, never())
+                .createBook(Mockito.any(CreateBookRequest.class));
     }
 }
