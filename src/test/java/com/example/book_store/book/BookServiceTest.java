@@ -6,6 +6,7 @@ import com.example.book_store.book.entity.Book;
 import com.example.book_store.book.entity.BookStatus;
 import com.example.book_store.book.repository.BookRepository;
 import com.example.book_store.book.service.impl.BookServiceImpl;
+import com.example.book_store.common.exception.ResourceAlreadyExistsException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -75,5 +76,31 @@ public class BookServiceTest {
         Mockito.verify(bookRepository)
                 .save(ArgumentMatchers.any(Book.class));
 
+    }
+
+    @Test
+    void createBook_shouldThrowException_whenIsbnAlreadyExists() {
+        // Arrange
+        CreateBookRequest request = new CreateBookRequest();
+
+        request.setIsbn("9780134685991");
+        request.setTitle("Effective Java");
+        request.setPrice(new BigDecimal("850.00"));
+
+        Mockito.when(bookRepository.existsByIsbn(request.getIsbn()))
+                .thenReturn(true);
+
+        // Act
+        Assertions.assertThatThrownBy(() ->
+                        bookService.createBook(request)
+                )
+                .isInstanceOf(ResourceAlreadyExistsException.class)
+                .hasMessage("Book creation rejected. ISBN already exists: 9780134685991");
+
+        Mockito.verify(bookRepository)
+                .existsByIsbn("9780134685991");
+        Mockito.verify(bookRepository, Mockito.never())
+                .save(Mockito.any(Book.class));
+        // Assert
     }
 }
