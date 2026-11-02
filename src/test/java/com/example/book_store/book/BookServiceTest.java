@@ -10,7 +10,9 @@ import com.example.book_store.common.exception.ResourceAlreadyExistsException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -102,5 +104,55 @@ public class BookServiceTest {
         Mockito.verify(bookRepository, Mockito.never())
                 .save(Mockito.any(Book.class));
         // Assert
+    }
+
+    @Captor
+    ArgumentCaptor<Book> bookCaptor;
+
+    @Test
+    void createBook_shouldSaveCorrectBookData() {
+        // Arrange
+        // Create input DTO
+        CreateBookRequest request = new CreateBookRequest();
+
+        request.setIsbn("9780134685991");
+        request.setTitle("Effective Java");
+        request.setPrice(new BigDecimal("850.00"));
+
+        // Mock duplicate check
+        Mockito.when(bookRepository.existsByIsbn(request.getIsbn()))
+                .thenReturn(false);
+
+        // Mock repository save behavior dynamically
+        Mockito.when(bookRepository.save(Mockito.any(Book.class)))
+                .thenAnswer(invocationOnMock -> {
+                    Book book = invocationOnMock.getArgument(0);
+
+                    book.setId(1L);
+
+                    return book;
+                });
+
+
+        // Act
+        BookResponse response = bookService.createBook(request);
+
+        // Assert
+        Mockito.verify(bookRepository)
+                .save(bookCaptor.capture());
+
+        Book savedBook = bookCaptor.getValue();
+
+        Assertions.assertThat(savedBook.getIsbn())
+                .isEqualTo("9780134685991");
+
+        Assertions.assertThat(savedBook.getTitle())
+                .isEqualTo("Effective Java");
+
+        Assertions.assertThat(savedBook.getPrice())
+                .isEqualTo("850.00");
+
+        Assertions.assertThat(savedBook.getStatus())
+                .isEqualTo(BookStatus.ACTIVE);
     }
 }
