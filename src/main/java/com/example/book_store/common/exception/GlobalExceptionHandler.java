@@ -1,6 +1,7 @@
 package com.example.book_store.common.exception;
 
 import com.example.book_store.common.response.GlobalApiResponse;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -98,5 +99,20 @@ public class GlobalExceptionHandler {
                 "Missing API Versioning Header");
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<GlobalApiResponse<Void>> handleConstraintViolationException(ConstraintViolationException exception) {
+        log.error("Constraint violation exception", exception);
+
+        GlobalApiResponse<Void> response = GlobalApiResponse.error(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.name(),
+                exception.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(response);
     }
 }
