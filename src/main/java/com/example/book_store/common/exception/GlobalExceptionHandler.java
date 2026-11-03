@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
+import org.springframework.web.accept.MissingApiVersionException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -85,5 +86,17 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(response);
+    }
+
+    @ExceptionHandler(MissingApiVersionException.class)
+    public ResponseEntity<GlobalApiResponse<Void>> handleMissingApiVersionException(MissingApiVersionException exception) {
+        log.error("Missing API Versioning", exception);
+
+        GlobalApiResponse<Void> response = GlobalApiResponse.error(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.name(),
+                "Missing API Versioning Header");
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 }
