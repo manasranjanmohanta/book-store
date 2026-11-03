@@ -7,6 +7,7 @@ import com.example.book_store.book.entity.BookStatus;
 import com.example.book_store.book.repository.BookRepository;
 import com.example.book_store.book.service.BookService;
 import com.example.book_store.common.exception.ResourceAlreadyExistsException;
+import com.example.book_store.common.exception.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -75,6 +76,21 @@ public class BookServiceImpl implements BookService {
 
         // Convert the saved book entity into the API response DTO.
         return mapToResponse(savedBook);
+    }
+
+    /**
+     * Fetch a book after validating the ISBN existence.
+     * @param isbn contains the book's unique number.
+     * @return the response DTO containing the book details.
+     */
+    @Override
+    public BookResponse getBookByIsbn(String isbn) {
+        log.debug("Fetching book with ISBN: {}", isbn);
+
+        Book book = bookRepository.findByIsbn(isbn)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with ISBN: " + isbn));
+
+        return mapToResponse(book);
     }
 
     /**

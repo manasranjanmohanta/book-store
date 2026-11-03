@@ -5,4 +5,6 @@ import com.example.book_store.book.dto.response.BookResponse;
 
 public interface BookService {
     BookResponse createBook(CreateBookRequest request);
+
+    BookResponse getBookByIsbn(String isbn);
 }

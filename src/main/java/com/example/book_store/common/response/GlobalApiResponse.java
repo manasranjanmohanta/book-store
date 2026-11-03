@@ -1,5 +1,6 @@
 package com.example.book_store.common.response;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,6 +13,13 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Setter
+@JsonPropertyOrder({
+        "timestamp",
+        "status",
+        "error",
+        "message",
+        "data"
+})
 public class GlobalApiResponse<T> {
     private final LocalDateTime timestamp;
     private final int status;
